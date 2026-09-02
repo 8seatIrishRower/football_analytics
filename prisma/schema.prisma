@@ -7,8 +7,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon's pooled connection (used above for normal app queries) isn't
+  // reliable for running migrations. DIRECT_URL is the same database's
+  // non-pooled connection string, used only when applying migrations.
+  directUrl = env("DIRECT_URL")
 }
 
 // ---------------------------------------------------------------------------

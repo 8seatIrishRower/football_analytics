@@ -36,14 +36,20 @@ way for this app:
 - [Supabase](https://supabase.com) — click "New project".
 
 Once created, find the **connection string** (sometimes called a "connection
-URI" or "pooled connection string"). It looks like:
+URI"). If you're using Neon, you actually need **two** versions of it — copy
+both:
 
-```
-postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require
-```
+- The **pooled** connection string (its hostname has `-pooler` in it) — this
+  is your `DATABASE_URL`, used for normal app traffic.
+- The **direct** connection string (same hostname, without `-pooler`) —
+  this is your `DIRECT_URL`, used only when creating/updating tables. In the
+  Neon console, toggle "Pooled connection" off to see this version.
 
-Copy it — you'll use the *same* database for both local testing and the
-live deployed app, so you only need to do this once.
+If you're using Supabase instead, use its one connection string for both
+`DATABASE_URL` and `DIRECT_URL`.
+
+You'll use the *same* database for both local testing and the live deployed
+app, so you only need to do this once.
 
 ## 3. Configure the project
 
@@ -53,9 +59,10 @@ In the project folder, copy `.env.example` to `.env`:
 cp .env.example .env
 ```
 
-Open `.env` in your editor and fill in three values:
+Open `.env` in your editor and fill in four values:
 
-- `DATABASE_URL` — the connection string from step 2
+- `DATABASE_URL` — the pooled connection string from step 2
+- `DIRECT_URL` — the direct connection string from step 2
 - `COACH_PASSWORD` — any password you and your assistant coaches will use
   to log in
 - `AUTH_SECRET` — a random string used to sign the login cookie. Generate
@@ -78,6 +85,10 @@ npx prisma db seed
   `testing_results` tables in your database.
 - `prisma db seed` adds the starting test type ("20-yard sprint").
 
+(These last two also run automatically every time Vercel deploys — see
+step 6 — so once you're deployed you generally won't need to run them by
+hand again, even after future schema changes.)
+
 ## 5. Run it locally and confirm it works
 
 ```bash
@@ -95,14 +106,18 @@ Open [http://localhost:3000](http://localhost:3000), log in with your
    assistant to do this for you).
 2. Go to [vercel.com/new](https://vercel.com/new), sign in with GitHub, and
    import the repository.
-3. Before deploying, open **Environment Variables** and add the same three
-   values from your `.env` file: `DATABASE_URL`, `COACH_PASSWORD`,
-   `AUTH_SECRET`.
-4. Click **Deploy**. Vercel will give you a URL like
-   `your-app.vercel.app` — that's your app, reachable from any device.
+3. Before deploying, open **Environment Variables** and add the same four
+   values from your `.env` file: `DATABASE_URL`, `DIRECT_URL`,
+   `COACH_PASSWORD`, `AUTH_SECRET`.
+4. Click **Deploy**. As part of the build, Vercel automatically creates the
+   database tables and seeds the starting test type (see the `build`
+   script in `package.json`) — you don't need to run any commands
+   yourself, even on a brand new database.
+5. Vercel will give you a URL like `your-app.vercel.app` — that's your app,
+   reachable from any device.
 
-Because it's the same database you migrated in step 4, there's nothing
-else to set up — the deployed app and your local copy share the same data.
+Because it's the same database, the deployed app and your local copy (if
+you set one up) share the same data.
 
 ### Add to Home Screen (iPhone / iPad)
 
@@ -132,7 +147,7 @@ your production `DATABASE_URL`).
 
 ```bash
 npm run dev          # run locally at http://localhost:3000
-npm run build         # production build (also used by Vercel)
+npm run build         # applies migrations, seeds, then builds (what Vercel runs)
 npx prisma studio     # a simple UI to browse/edit the database directly
 npx prisma migrate dev --name <description>  # after changing schema.prisma
 ```
