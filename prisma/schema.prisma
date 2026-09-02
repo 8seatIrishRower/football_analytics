@@ -1,0 +1,75 @@
+// Prisma schema for the youth football tracker.
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon's pooled connection (used above for normal app queries) isn't
+  // reliable for running migrations. DIRECT_URL is the same database's
+  // non-pooled connection string, used only when applying migrations.
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Phase 1 (this migration): players + physical testing results.
+//
+// Phase 2/3 roadmap (not built yet, schema below is shaped to support it):
+//   - Game            (opponent, date, final score)
+//   - Play            (gameId, formation, playType run|pass, down, distance,
+//                       yardsGained, fumble, quarter/score situation, ...)
+//   - PlayParticipant (playId, playerId, role tackle|sack|carry|target|...)
+// Both future tables would reference Player.id the same way TestResult does
+// below, so no changes to the Player model should be needed to add them.
+// ---------------------------------------------------------------------------
+
+model Player {
+  id           String   @id @default(cuid())
+  name         String
+  jerseyNumber Int?
+  positions    String[] @default([])
+  birthYear    Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  testResults TestResult[]
+
+  @@map("players")
+}
+
+// A catalog of physical tests, so new ones (vertical jump, pro-agility,
+// bench reps, ...) can be added later without a schema change or deploy.
+model TestType {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  unit          String
+  // Whether a lower result is the better result (e.g. sprint time in
+  // seconds) vs. a higher result being better (e.g. vertical jump inches).
+  // Used to compute "best result" and rankings.
+  lowerIsBetter Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  testResults TestResult[]
+
+  @@map("test_types")
+}
+
+model TestResult {
+  id         String   @id @default(cuid())
+  playerId   String
+  player     Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  testTypeId String
+  testType   TestType @relation(fields: [testTypeId], references: [id], onDelete: Restrict)
+  value      Float
+  recordedOn DateTime @db.Date
+  createdAt  DateTime @default(now())
+
+  @@index([playerId])
+  @@index([testTypeId])
+  @@map("testing_results")
+}
