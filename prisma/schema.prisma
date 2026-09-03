@@ -4,6 +4,11 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  // "native" covers local dev machines; "rhel-openssl-3.0.x" is what
+  // Vercel's serverless functions actually run on at request time (it
+  // differs from Vercel's build container, which is why this can't be
+  // auto-detected — see https://pris.ly/d/engines).
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

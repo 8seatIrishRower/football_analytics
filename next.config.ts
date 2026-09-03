@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Belt-and-suspenders: make sure the Prisma query engine binaries are
+  // always bundled into every route's serverless function, regardless of
+  // whether Next's automatic file tracing picks them up on its own.
+  outputFileTracingIncludes: {
+    "/*": ["src/generated/prisma/**/*"],
+  },
 };
 
 export default nextConfig;
