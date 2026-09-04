@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // always bundled into every route's serverless function, regardless of
   // whether Next's automatic file tracing picks them up on its own.
   outputFileTracingIncludes: {
-    "/*": ["src/generated/prisma/**/*"],
+    "/*": ["node_modules/.prisma/client/**/*", "node_modules/@prisma/client/**/*"],
   },
 };
 

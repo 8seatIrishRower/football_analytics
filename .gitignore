@@ -41,8 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
-
 # prisma cli agent-skill docs (not part of the app)
 /.claude/skills
 /.windsurf

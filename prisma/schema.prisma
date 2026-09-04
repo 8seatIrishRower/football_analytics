@@ -2,8 +2,12 @@
 // Docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  // The classic generator with its default output location
+  // (node_modules/.prisma/client) — Vercel's build system has built-in,
+  // well-tested support for finding and bundling engine files there.
+  // The newer "prisma-client" generator with a custom output path (what
+  // this used to be) isn't reliably picked up by Vercel's tooling yet.
+  provider      = "prisma-client-js"
   // "native" covers local dev machines; "rhel-openssl-3.0.x" is what
   // Vercel's serverless functions actually run on at request time (it
   // differs from Vercel's build container, which is why this can't be
