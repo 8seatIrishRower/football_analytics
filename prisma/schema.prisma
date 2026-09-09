@@ -37,27 +37,56 @@ datasource db {
 // ---------------------------------------------------------------------------
 
 model Player {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
   jerseyNumber Int?
-  positions    String[] @default([])
-  birthYear    Int?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  positions    String[]  @default([])
+  dateOfBirth  DateTime? @db.Date
+  heightInches Float?
+  weightLbs    Float?
+
+  // Two guardian slots as plain fields rather than a related table — covers
+  // the common case (up to two parents/guardians) without extra add/remove
+  // list UI. Ask if a third is ever needed; it's a one-line schema change.
+  guardian1Name  String?
+  guardian1Phone String?
+  guardian1Email String?
+  guardian2Name  String?
+  guardian2Phone String?
+  guardian2Email String?
+
+  // Free-form: emergency contact (if different from the guardians above)
+  // and/or medical notes (allergies, conditions), whichever applies.
+  emergencyMedicalNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   testResults TestResult[]
 
   @@map("players")
 }
 
+enum TestValueType {
+  TIME
+  DISTANCE
+}
+
+enum PadLevel {
+  FULL_PADS_HELMET
+  FULL_PADS_NO_HELMET
+  NO_PADS_NO_HELMET
+}
+
 // A catalog of physical tests, so new ones (vertical jump, pro-agility,
 // bench reps, ...) can be added later without a schema change or deploy.
 model TestType {
-  id            String   @id @default(cuid())
-  name          String   @unique
-  unit          String
+  id        String        @id @default(cuid())
+  name      String        @unique
+  unit      String
+  valueType TestValueType @default(TIME)
   // Whether a lower result is the better result (e.g. sprint time in
-  // seconds) vs. a higher result being better (e.g. vertical jump inches).
+  // seconds) vs. a higher result being better (e.g. broad jump distance).
   // Used to compute "best result" and rankings.
   lowerIsBetter Boolean  @default(true)
   sortOrder     Int      @default(0)
@@ -69,14 +98,17 @@ model TestType {
 }
 
 model TestResult {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   playerId   String
-  player     Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  player     Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
   testTypeId String
-  testType   TestType @relation(fields: [testTypeId], references: [id], onDelete: Restrict)
+  testType   TestType  @relation(fields: [testTypeId], references: [id], onDelete: Restrict)
+  // Canonical storage unit regardless of display format: seconds for TIME
+  // tests, total inches for DISTANCE tests (see src/lib/format.ts).
   value      Float
-  recordedOn DateTime @db.Date
-  createdAt  DateTime @default(now())
+  padLevel   PadLevel?
+  recordedOn DateTime  @db.Date
+  createdAt  DateTime  @default(now())
 
   @@index([playerId])
   @@index([testTypeId])

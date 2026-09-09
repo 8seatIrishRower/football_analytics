@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ResultsTable } from "@/components/results-table";
+import { formatTestValue, PAD_LEVEL_LABELS } from "@/lib/format";
 
 // Always reflect the latest recorded results, never a build-time snapshot.
 export const dynamic = "force-dynamic";
@@ -76,7 +77,7 @@ export default async function ResultsPage() {
                 {testType.name}
               </h2>
               <p className="text-sm text-slate-500">
-                Team avg: {average.toFixed(2)} {testType.unit}
+                Team avg: {formatTestValue(average, testType.valueType)}
               </p>
             </div>
             <ol className="mt-3 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
@@ -97,7 +98,7 @@ export default async function ResultsPage() {
                     </span>
                   </div>
                   <span className="text-sm text-slate-700">
-                    {standing.bestValue} {testType.unit}
+                    {formatTestValue(standing.bestValue, testType.valueType)}
                   </span>
                 </li>
               ))}
@@ -116,8 +117,9 @@ export default async function ResultsPage() {
               playerName: r.player.name,
               jerseyNumber: r.player.jerseyNumber,
               testTypeName: r.testType.name,
-              unit: r.testType.unit,
+              valueType: r.testType.valueType,
               value: r.value,
+              padLevel: r.padLevel ? PAD_LEVEL_LABELS[r.padLevel] : "—",
               recordedOn: r.recordedOn.toISOString().slice(0, 10),
             }))}
           />

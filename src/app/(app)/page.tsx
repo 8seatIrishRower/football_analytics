@@ -13,7 +13,7 @@ export default async function EntryPage() {
       orderBy: [{ jerseyNumber: "asc" }, { name: "asc" }],
     }),
     prisma.testType.findMany({
-      select: { id: true, name: true, unit: true },
+      select: { id: true, name: true, unit: true, valueType: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     }),
   ]);

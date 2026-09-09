@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { POSITIONS } from "@/lib/constants";
+import { calculateAge, formatHeight } from "@/lib/format";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { addPlayer, deletePlayer } from "./actions";
 
@@ -45,17 +46,56 @@ export default async function PlayersPage() {
               />
             </div>
             <div>
-              <label htmlFor="birthYear" className="block text-sm font-medium text-slate-700">
-                Birth year
+              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-slate-700">
+                Date of birth
               </label>
               <input
-                id="birthYear"
-                name="birthYear"
+                id="dateOfBirth"
+                name="dateOfBirth"
+                type="date"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="heightFeet" className="block text-sm font-medium text-slate-700">
+                Height (ft)
+              </label>
+              <input
+                id="heightFeet"
+                name="heightFeet"
                 type="number"
                 inputMode="numeric"
-                min={2000}
-                max={2025}
-                placeholder="e.g. 2018"
+                min={0}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="heightInchesPart" className="block text-sm font-medium text-slate-700">
+                Height (in)
+              </label>
+              <input
+                id="heightInchesPart"
+                name="heightInchesPart"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={11}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="weightLbs" className="block text-sm font-medium text-slate-700">
+                Weight (lbs)
+              </label>
+              <input
+                id="weightLbs"
+                name="weightLbs"
+                type="number"
+                inputMode="numeric"
+                min={0}
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
               />
             </div>
@@ -82,6 +122,77 @@ export default async function PlayersPage() {
               ))}
             </div>
           </fieldset>
+
+          <details className="rounded-lg border border-slate-200 p-3">
+            <summary className="cursor-pointer text-sm font-medium text-slate-700">
+              Parent/guardian &amp; emergency info (optional)
+            </summary>
+            <div className="mt-4 space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <input
+                  name="guardian1Name"
+                  type="text"
+                  placeholder="Parent/guardian 1 name"
+                  autoComplete="off"
+                  className="col-span-3 rounded-lg border border-slate-300 px-3 py-2.5 text-sm sm:col-span-1 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+                <input
+                  name="guardian1Phone"
+                  type="tel"
+                  placeholder="Phone"
+                  autoComplete="off"
+                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+                <input
+                  name="guardian1Email"
+                  type="email"
+                  placeholder="Email"
+                  autoComplete="off"
+                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <input
+                  name="guardian2Name"
+                  type="text"
+                  placeholder="Parent/guardian 2 name"
+                  autoComplete="off"
+                  className="col-span-3 rounded-lg border border-slate-300 px-3 py-2.5 text-sm sm:col-span-1 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+                <input
+                  name="guardian2Phone"
+                  type="tel"
+                  placeholder="Phone"
+                  autoComplete="off"
+                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+                <input
+                  name="guardian2Email"
+                  type="email"
+                  placeholder="Email"
+                  autoComplete="off"
+                  className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="emergencyMedicalNotes"
+                  className="block text-sm font-medium text-slate-700"
+                >
+                  Emergency contact / medical notes
+                </label>
+                <textarea
+                  id="emergencyMedicalNotes"
+                  name="emergencyMedicalNotes"
+                  rows={2}
+                  placeholder="Allergies, conditions, alternate emergency contact, etc."
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+              </div>
+            </div>
+          </details>
 
           <button
             type="submit"
@@ -115,7 +226,16 @@ export default async function PlayersPage() {
                     {player.name}
                   </p>
                   <p className="text-sm text-slate-500">
-                    {[player.positions.join(", "), player.birthYear]
+                    {[
+                      player.positions.join(", "),
+                      player.dateOfBirth
+                        ? `Age ${calculateAge(player.dateOfBirth).toFixed(2)}`
+                        : null,
+                      player.heightInches !== null
+                        ? formatHeight(player.heightInches)
+                        : null,
+                      player.weightLbs !== null ? `${player.weightLbs} lbs` : null,
+                    ]
                       .filter(Boolean)
                       .join(" · ") || "—"}
                   </p>

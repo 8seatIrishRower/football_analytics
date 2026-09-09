@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, TestValueType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -6,7 +6,34 @@ const prisma = new PrismaClient();
 // deploy needed beyond re-running the seed (or add them straight to the
 // database) since testing_results.test_type_id just references this table.
 const testTypes = [
-  { name: "20-yard sprint", unit: "seconds", lowerIsBetter: true, sortOrder: 1 },
+  {
+    name: "10-yard sprint",
+    unit: "seconds",
+    valueType: TestValueType.TIME,
+    lowerIsBetter: true,
+    sortOrder: 1,
+  },
+  {
+    name: "20-yard sprint",
+    unit: "seconds",
+    valueType: TestValueType.TIME,
+    lowerIsBetter: true,
+    sortOrder: 2,
+  },
+  {
+    name: "Broad Jump",
+    unit: "inches",
+    valueType: TestValueType.DISTANCE,
+    lowerIsBetter: false,
+    sortOrder: 3,
+  },
+  {
+    name: "Shuttle Run",
+    unit: "seconds",
+    valueType: TestValueType.TIME,
+    lowerIsBetter: true,
+    sortOrder: 4,
+  },
 ];
 
 async function main() {

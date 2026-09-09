@@ -3,23 +3,26 @@
 import { useMemo, useState } from "react";
 import { deleteTestResult } from "@/app/(app)/actions";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { formatTestValue } from "@/lib/format";
 
 type Row = {
   id: string;
   playerName: string;
   jerseyNumber: number | null;
   testTypeName: string;
-  unit: string;
+  valueType: "TIME" | "DISTANCE";
   value: number;
+  padLevel: string;
   recordedOn: string;
 };
 
-type SortKey = "player" | "test" | "value" | "date";
+type SortKey = "player" | "test" | "value" | "padLevel" | "date";
 
 const columns: { key: SortKey; label: string }[] = [
   { key: "player", label: "Player" },
   { key: "test", label: "Test" },
   { key: "value", label: "Result" },
+  { key: "padLevel", label: "Pads" },
   { key: "date", label: "Date" },
 ];
 
@@ -31,6 +34,8 @@ function sortValue(row: Row, key: SortKey): string | number {
       return row.testTypeName.toLowerCase();
     case "value":
       return row.value;
+    case "padLevel":
+      return row.padLevel;
     case "date":
       return row.recordedOn;
   }
@@ -93,8 +98,9 @@ export function ResultsTable({ results }: { results: Row[] }) {
               </td>
               <td className="px-3 py-2 whitespace-nowrap">{row.testTypeName}</td>
               <td className="px-3 py-2 whitespace-nowrap">
-                {row.value} {row.unit}
+                {formatTestValue(row.value, row.valueType)}
               </td>
+              <td className="px-3 py-2 whitespace-nowrap">{row.padLevel}</td>
               <td className="px-3 py-2 whitespace-nowrap">{row.recordedOn}</td>
               <td className="px-3 py-2 text-right">
                 <form action={deleteTestResult}>
