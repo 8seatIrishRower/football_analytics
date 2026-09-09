@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getMyTeam } from "@/lib/my-team";
 import { POSITIONS } from "@/lib/constants";
 import { calculateAge, formatHeight } from "@/lib/format";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
@@ -8,9 +9,13 @@ import { addPlayer, deletePlayer } from "./actions";
 export const dynamic = "force-dynamic";
 
 export default async function PlayersPage() {
-  const players = await prisma.player.findMany({
-    orderBy: [{ jerseyNumber: "asc" }, { name: "asc" }],
-  });
+  const myTeam = await getMyTeam();
+  const players = myTeam
+    ? await prisma.player.findMany({
+        where: { teamId: myTeam.id },
+        orderBy: [{ jerseyNumber: "asc" }, { name: "asc" }],
+      })
+    : [];
 
   return (
     <div className="space-y-8">

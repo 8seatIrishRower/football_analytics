@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getMyTeam } from "@/lib/my-team";
 import { EntryForm } from "@/components/entry-form";
 
 // This page reads live data straight from Postgres on every request; it
@@ -7,11 +8,15 @@ import { EntryForm } from "@/components/entry-form";
 export const dynamic = "force-dynamic";
 
 export default async function EntryPage() {
+  const myTeam = await getMyTeam();
   const [players, testTypes] = await Promise.all([
-    prisma.player.findMany({
-      select: { id: true, name: true, jerseyNumber: true },
-      orderBy: [{ jerseyNumber: "asc" }, { name: "asc" }],
-    }),
+    myTeam
+      ? prisma.player.findMany({
+          where: { teamId: myTeam.id },
+          select: { id: true, name: true, jerseyNumber: true },
+          orderBy: [{ jerseyNumber: "asc" }, { name: "asc" }],
+        })
+      : Promise.resolve([]),
     prisma.testType.findMany({
       select: { id: true, name: true, unit: true, valueType: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],

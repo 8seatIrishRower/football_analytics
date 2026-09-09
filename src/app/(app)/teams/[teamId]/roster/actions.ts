@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getMyTeam } from "@/lib/my-team";
 import {
   parseOptionalInt,
   parseOptionalFloat,
@@ -11,18 +10,16 @@ import {
   combineHeight,
 } from "@/lib/parse-form";
 
-export async function addPlayer(formData: FormData) {
+export async function addTeamPlayer(formData: FormData) {
+  const teamId = String(formData.get("teamId") ?? "");
   const name = String(formData.get("name") ?? "").trim();
-  if (!name) return;
-
-  const myTeam = await getMyTeam();
-  if (!myTeam) return;
+  if (!teamId || !name) return;
 
   const positions = formData.getAll("positions").map(String);
 
   await prisma.player.create({
     data: {
-      teamId: myTeam.id,
+      teamId,
       name,
       jerseyNumber: parseOptionalInt(formData.get("jerseyNumber")),
       positions,
@@ -42,17 +39,17 @@ export async function addPlayer(formData: FormData) {
     },
   });
 
-  revalidatePath("/players");
-  revalidatePath("/");
+  revalidatePath(`/teams/${teamId}/roster`);
+  revalidatePath(`/teams/${teamId}`);
 }
 
-export async function deletePlayer(formData: FormData) {
+export async function deleteTeamPlayer(formData: FormData) {
   const id = String(formData.get("id") ?? "");
+  const teamId = String(formData.get("teamId") ?? "");
   if (!id) return;
 
   await prisma.player.delete({ where: { id } });
 
-  revalidatePath("/players");
-  revalidatePath("/");
-  revalidatePath("/results");
+  revalidatePath(`/teams/${teamId}/roster`);
+  revalidatePath(`/teams/${teamId}`);
 }
