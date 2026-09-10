@@ -23,6 +23,7 @@ export default async function TeamRosterPage({
   if (!team) notFound();
 
   const isYouth = team.level === "YOUTH";
+  const isCollege = team.level === "COLLEGE";
 
   return (
     <div className="space-y-8">
@@ -82,48 +83,67 @@ export default async function TeamRosterPage({
             )}
           </div>
 
-          {isYouth && (
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="heightFeet" className="block text-sm font-medium text-slate-700">
-                  Height (ft)
-                </label>
-                <input
-                  id="heightFeet"
-                  name="heightFeet"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="heightInchesPart" className="block text-sm font-medium text-slate-700">
-                  Height (in)
-                </label>
-                <input
-                  id="heightInchesPart"
-                  name="heightInchesPart"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={11}
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="weightLbs" className="block text-sm font-medium text-slate-700">
-                  Weight (lbs)
-                </label>
-                <input
-                  id="weightLbs"
-                  name="weightLbs"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                />
-              </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="heightFeet" className="block text-sm font-medium text-slate-700">
+                Height (ft)
+              </label>
+              <input
+                id="heightFeet"
+                name="heightFeet"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="heightInchesPart" className="block text-sm font-medium text-slate-700">
+                Height (in)
+              </label>
+              <input
+                id="heightInchesPart"
+                name="heightInchesPart"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={11}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="weightLbs" className="block text-sm font-medium text-slate-700">
+                Weight (lbs)
+              </label>
+              <input
+                id="weightLbs"
+                name="weightLbs"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              />
+            </div>
+          </div>
+
+          {isCollege && (
+            <div>
+              <label htmlFor="collegeYear" className="block text-sm font-medium text-slate-700">
+                Year
+              </label>
+              <select
+                id="collegeYear"
+                name="collegeYear"
+                defaultValue=""
+                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+              >
+                <option value="">—</option>
+                {[1, 2, 3, 4, 5, 6].map((year) => (
+                  <option key={year} value={year}>
+                    Year {year}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -257,12 +277,13 @@ export default async function TeamRosterPage({
                       isYouth && player.dateOfBirth
                         ? `Age ${calculateAge(player.dateOfBirth).toFixed(2)}`
                         : null,
-                      isYouth && player.heightInches !== null
+                      isCollege && player.collegeYear !== null
+                        ? `Yr ${player.collegeYear}`
+                        : null,
+                      player.heightInches !== null
                         ? formatHeight(player.heightInches)
                         : null,
-                      isYouth && player.weightLbs !== null
-                        ? `${player.weightLbs} lbs`
-                        : null,
+                      player.weightLbs !== null ? `${player.weightLbs} lbs` : null,
                     ]
                       .filter(Boolean)
                       .join(" · ") || "—"}

@@ -57,12 +57,16 @@ model Player {
   jerseyNumber Int?
   positions    String[]  @default([])
 
+  // Height/weight apply at any level. College year (1-6, to allow for a
+  // redshirt/extra eligibility year) is College-specific.
+  heightInches Float?
+  weightLbs    Float?
+  collegeYear  Int?
+
   // The fields below are only meaningful for a coach's own Youth-level
   // roster; they stay null for other teams' players (e.g. Notre Dame's
   // roster, kept only for stat-attribution, has no guardian/medical info).
-  dateOfBirth  DateTime? @db.Date
-  heightInches Float?
-  weightLbs    Float?
+  dateOfBirth DateTime? @db.Date
 
   // Two guardian slots as plain fields rather than a related table — covers
   // the common case (up to two parents/guardians) without extra add/remove

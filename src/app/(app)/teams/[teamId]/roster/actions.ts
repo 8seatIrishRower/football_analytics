@@ -29,6 +29,7 @@ export async function addTeamPlayer(formData: FormData) {
         formData.get("heightInchesPart"),
       ),
       weightLbs: parseOptionalFloat(formData.get("weightLbs")),
+      collegeYear: parseOptionalInt(formData.get("collegeYear")),
       guardian1Name: parseOptionalString(formData.get("guardian1Name")),
       guardian1Phone: parseOptionalString(formData.get("guardian1Phone")),
       guardian1Email: parseOptionalString(formData.get("guardian1Email")),
