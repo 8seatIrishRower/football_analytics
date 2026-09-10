@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PlayForm } from "@/components/play-form";
+import { CsvImportForm } from "@/components/csv-import-form";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import {
   PLAY_TYPE_LABELS,
@@ -107,8 +108,9 @@ export default async function GameDetailPage({
           <h2 className="text-base font-semibold text-slate-900">
             Log play #{game.plays.length + 1}
           </h2>
-          <div className="mt-4">
+          <div className="mt-4 space-y-4">
             <PlayForm teamId={teamId} gameId={gameId} players={team.players} />
+            <CsvImportForm teamId={teamId} gameId={gameId} />
           </div>
         </section>
       )}

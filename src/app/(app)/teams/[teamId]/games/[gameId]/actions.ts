@@ -4,8 +4,16 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { ParticipantRole, GameSide, PlayType } from "@prisma/client";
 import { parseOptionalInt, parseOptionalString } from "@/lib/parse-form";
+import { parsePlaysCsv } from "@/lib/play-csv";
 
 export type AddPlayState = { ok: boolean; error?: string };
+
+export type ImportPlaysState = {
+  ok: boolean;
+  error?: string;
+  imported?: number;
+  warnings?: string[];
+};
 
 const ROLE_FIELD_NAMES: Record<string, ParticipantRole> = {
   ballCarrierId: ParticipantRole.BALL_CARRIER,
@@ -80,6 +88,71 @@ export async function addPlay(
 
   revalidatePath(`/teams/${formData.get("teamId")}/games/${gameId}`);
   return { ok: true };
+}
+
+export async function importPlaysFromCsv(
+  _prevState: ImportPlaysState,
+  formData: FormData,
+): Promise<ImportPlaysState> {
+  const teamId = String(formData.get("teamId") ?? "");
+  const gameId = String(formData.get("gameId") ?? "");
+  const csvText = String(formData.get("csv") ?? "");
+
+  if (!teamId || !gameId || !csvText.trim()) {
+    return { ok: false, error: "Choose or paste a CSV file first." };
+  }
+
+  const roster = await prisma.player.findMany({
+    where: { teamId },
+    select: { id: true, name: true, jerseyNumber: true },
+  });
+
+  const { plays, errors, warnings } = parsePlaysCsv(csvText, roster);
+
+  if (errors.length > 0) {
+    return { ok: false, error: errors.join(" ") };
+  }
+  if (plays.length === 0) {
+    return { ok: false, error: "No plays found in that CSV." };
+  }
+
+  const lastPlay = await prisma.play.findFirst({
+    where: { gameId },
+    orderBy: { playNumber: "desc" },
+    select: { playNumber: true },
+  });
+  let nextPlayNumber = (lastPlay?.playNumber ?? 0) + 1;
+
+  await prisma.$transaction(
+    plays.map((play) =>
+      prisma.play.create({
+        data: {
+          gameId,
+          playNumber: nextPlayNumber++,
+          quarter: play.quarter,
+          down: play.down,
+          distance: play.distance,
+          side: play.side,
+          ourFormation: play.ourFormation,
+          theirFormation: play.theirFormation,
+          blitz: play.blitz,
+          playType: play.playType,
+          yardsGained: play.yardsGained,
+          fumble: play.fumble,
+          teamScoreAfter: play.teamScoreAfter,
+          opponentScoreAfter: play.opponentScoreAfter,
+          ourOffenseNotes: play.ourOffenseNotes,
+          ourDefenseNotes: play.ourDefenseNotes,
+          theirOffenseNotes: play.theirOffenseNotes,
+          theirDefenseNotes: play.theirDefenseNotes,
+          participants: { create: play.participants },
+        },
+      }),
+    ),
+  );
+
+  revalidatePath(`/teams/${teamId}/games/${gameId}`);
+  return { ok: true, imported: plays.length, warnings };
 }
 
 export async function deletePlay(formData: FormData) {
