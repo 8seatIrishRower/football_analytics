@@ -153,17 +153,24 @@ model Play {
   distance   Int?
   // Whether the tracked team (Game.team) was on offense, defense, or a
   // special teams unit for this play.
-  side       GameSide
-  formation  String?
-  playType   PlayType
+  side           GameSide
+  ourFormation   String?
+  theirFormation String?
+  // Whether the defense (whichever team that was this play) blitzed.
+  blitz       Boolean  @default(false)
+  playType    PlayType
   yardsGained Int?
   fumble      Boolean  @default(false)
   // Only set on scoring plays — running score situation is derived from
   // these rather than re-entered on every non-scoring play.
   teamScoreAfter     Int?
   opponentScoreAfter Int?
-  notes       String?
-  createdAt   DateTime @default(now())
+  // Free-form scouting notes, split by whose side and unit they're about.
+  ourOffenseNotes   String?
+  ourDefenseNotes   String?
+  theirOffenseNotes String?
+  theirDefenseNotes String?
+  createdAt DateTime @default(now())
 
   participants PlayParticipant[]
 

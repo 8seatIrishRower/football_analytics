@@ -141,21 +141,36 @@ export function PlayForm({
         </select>
       </div>
 
-      <div>
-        <label htmlFor="formation" className="block text-sm font-medium text-slate-700">
-          Formation (optional)
-        </label>
-        <input
-          id="formation"
-          name="formation"
-          type="text"
-          autoComplete="off"
-          placeholder="e.g. Shotgun, I-Form, 4-3"
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="ourFormation" className="block text-sm font-medium text-slate-700">
+            Our formation
+          </label>
+          <input
+            id="ourFormation"
+            name="ourFormation"
+            type="text"
+            autoComplete="off"
+            placeholder="e.g. Shotgun, 4-3"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          />
+        </div>
+        <div>
+          <label htmlFor="theirFormation" className="block text-sm font-medium text-slate-700">
+            Their formation
+          </label>
+          <input
+            id="theirFormation"
+            name="theirFormation"
+            type="text"
+            autoComplete="off"
+            placeholder="e.g. I-Form, Nickel"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <label htmlFor="yardsGained" className="block text-sm font-medium text-slate-700">
             Yards (+/-)
@@ -172,6 +187,12 @@ export function PlayForm({
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
             <input type="checkbox" name="fumble" className="h-4 w-4" />
             Fumble
+          </label>
+        </div>
+        <div className="flex items-end pb-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <input type="checkbox" name="blitz" className="h-4 w-4" />
+            Blitz
           </label>
         </div>
       </div>
@@ -222,15 +243,53 @@ export function PlayForm({
             </div>
           </div>
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-slate-700">
-              Notes
-            </label>
-            <textarea
-              id="notes"
-              name="notes"
-              rows={2}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-            />
+            <p className="text-xs font-medium text-slate-600">Scouting notes</p>
+            <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div>
+                <label htmlFor="ourOffenseNotes" className="block text-xs text-slate-600">
+                  Our offense
+                </label>
+                <textarea
+                  id="ourOffenseNotes"
+                  name="ourOffenseNotes"
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="ourDefenseNotes" className="block text-xs text-slate-600">
+                  Our defense
+                </label>
+                <textarea
+                  id="ourDefenseNotes"
+                  name="ourDefenseNotes"
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="theirOffenseNotes" className="block text-xs text-slate-600">
+                  Their offense
+                </label>
+                <textarea
+                  id="theirOffenseNotes"
+                  name="theirOffenseNotes"
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="theirDefenseNotes" className="block text-xs text-slate-600">
+                  Their defense
+                </label>
+                <textarea
+                  id="theirDefenseNotes"
+                  name="theirDefenseNotes"
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </details>

@@ -134,10 +134,17 @@ export default async function GameDetailPage({
                     </p>
                     <p className="text-sm text-slate-600">
                       {PLAY_TYPE_LABELS[play.playType]}
-                      {play.formation ? ` (${play.formation})` : ""}
                       {play.yardsGained !== null ? ` — ${play.yardsGained} yds` : ""}
                       {play.fumble ? " — FUMBLE" : ""}
+                      {play.blitz ? " — BLITZ" : ""}
                     </p>
+                    {(play.ourFormation || play.theirFormation) && (
+                      <p className="text-xs text-slate-500">
+                        {play.ourFormation && `Us: ${play.ourFormation}`}
+                        {play.ourFormation && play.theirFormation && " · "}
+                        {play.theirFormation && `Them: ${play.theirFormation}`}
+                      </p>
+                    )}
                     {play.participants.length > 0 && (
                       <p className="mt-1 text-xs text-slate-500">
                         {play.participants
@@ -153,8 +160,20 @@ export default async function GameDetailPage({
                         Score: {play.teamScoreAfter ?? "?"}-{play.opponentScoreAfter ?? "?"}
                       </p>
                     )}
-                    {play.notes && (
-                      <p className="mt-1 text-xs italic text-slate-500">{play.notes}</p>
+                    {(play.ourOffenseNotes ||
+                      play.ourDefenseNotes ||
+                      play.theirOffenseNotes ||
+                      play.theirDefenseNotes) && (
+                      <ul className="mt-1 space-y-0.5 text-xs italic text-slate-500">
+                        {play.ourOffenseNotes && <li>Our offense: {play.ourOffenseNotes}</li>}
+                        {play.ourDefenseNotes && <li>Our defense: {play.ourDefenseNotes}</li>}
+                        {play.theirOffenseNotes && (
+                          <li>Their offense: {play.theirOffenseNotes}</li>
+                        )}
+                        {play.theirDefenseNotes && (
+                          <li>Their defense: {play.theirDefenseNotes}</li>
+                        )}
+                      </ul>
                     )}
                   </div>
                   <form action={deletePlay}>
