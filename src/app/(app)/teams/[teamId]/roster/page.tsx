@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { POSITIONS } from "@/lib/constants";
 import { calculateAge, formatHeight } from "@/lib/format";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { RosterCsvImportForm } from "@/components/roster-csv-import-form";
 import { addTeamPlayer, deleteTeamPlayer } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -247,6 +248,10 @@ export default async function TeamRosterPage({
             Add player
           </button>
         </form>
+
+        <div className="mt-4">
+          <RosterCsvImportForm teamId={team.id} />
+        </div>
       </section>
 
       <section>
